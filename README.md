@@ -1,0 +1,1 @@
+Install JetbrainMono Nerd Fonts
