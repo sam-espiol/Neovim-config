@@ -1,27 +1,5 @@
 " ==============================================================================
-" 1. TỰ ĐỘNG CÀI ĐẶT VIM-PLUG (Đảm bảo tính di động qua các máy khác nhau)
-" ==============================================================================
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-" ==============================================================================
-" 2. QUẢN LÝ PLUGIN
-" ==============================================================================
-call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
-
-" Duyệt file và thư mục
-Plug 'preservim/nerdtree'
-
-" Terminal dạng nổi (ổn định, không làm loạn layout code)
-Plug 'voldikss/vim-floaterm'
-
-call plug#end()
-
-" ==============================================================================
-" 3. CẤU HÌNH CÁ NHÂN CỦA BẠN
+" 1. CẤU HÌNH CÁ NHÂN CỦA BẠN (Đã làm gọn và tối ưu)
 " ==============================================================================
 set ai
 set hlsearch
@@ -49,22 +27,26 @@ inoremap [ []<Esc>ha
 inoremap ( ()<Esc>ha
 
 " ==============================================================================
-" 4. CẤU HÌNH CÁC TÍNH NĂNG MỚI (NERDTree & Terminal)
+" 2. DUYỆT FILE BẰNG NETRW (Không cần NERDTree)
 " ==============================================================================
+" Cấu hình Netrw để hiển thị dạng cây (Tree) giống hệt NERDTree
+let g:netrw_banner = 0         " Ẩn các dòng text hướng dẫn dư thừa ở trên cùng
+let g:netrw_liststyle = 3      " Hiển thị thư mục theo dạng cây có thể đóng/mở
+let g:netrw_browse_split = 4   " Mở file ở cửa sổ kế bên (không đè lên cây thư mục)
+let g:netrw_altv = 1           " Quy định hướng chia cửa sổ
+let g:netrw_winsize = 20       " Chiều rộng thanh thư mục chiếm 20% màn hình
 
-" --- Phím tắt cho NERDTree (Duyệt file) ---
-" Bấm Ctrl + n để mở/đóng cây thư mục
-nnoremap <C-n> :NERDTreeToggle<CR>
-" Bấm Leader + f để tìm file hiện tại đang mở trong cây thư mục
-nnoremap <leader>f :NERDTreeFind<CR>
-" Tự động đóng Neovim nếu tab cuối cùng chỉ còn lại bảng NERDTree
-autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+" Bấm Ctrl + n để bật/tắt cây thư mục bên trái (Lexplore: Left Explore)
+nnoremap <C-n> :Lexplore<CR>
 
-" --- Phím tắt cho Floaterm (Terminal) ---
-" Bấm F12 để bật/tắt terminal nổi (rất tiện để compile C/Java hoặc chạy lệnh bash nhanh)
-let g:floaterm_keymap_toggle = '<F12>'
-" Cài đặt kích thước Terminal
-let g:floaterm_width = 0.8
-let g:floaterm_height = 0.8
-" Bấm Esc hai lần để thoát chế độ nhập liệu trong terminal quay về Normal mode
+" ==============================================================================
+" 3. TERMINAL TÍCH HỢP (Không cần Floaterm)
+" ==============================================================================
+" Bấm F12 để mở Terminal ở cạnh dưới màn hình (cao 12 dòng) và tự động sẵn sàng gõ lệnh
+nnoremap <F12> :botright split <Bar> resize 12 <Bar> terminal<CR>i
+
+" Bấm F12 trong chế độ Terminal để đóng nó đi nhanh chóng
+tnoremap <F12> <C-\><C-n>:q!<CR>
+
+" Bấm Esc 2 lần để thoát chế độ nhập lệnh của Terminal (về Normal mode) để copy/paste
 tnoremap <Esc><Esc> <C-\><C-n>
