@@ -1,5 +1,5 @@
 " ==============================================================================
-" 1. CẤU HÌNH CÁ NHÂN CỦA BẠN (Đã làm gọn và tối ưu)
+" 1. CẤU HÌNH CÁ NHÂN CỦA BẠN
 " ==============================================================================
 set ai
 set hlsearch
@@ -27,26 +27,69 @@ inoremap [ []<Esc>ha
 inoremap ( ()<Esc>ha
 
 " ==============================================================================
-" 2. DUYỆT FILE BẰNG NETRW (Không cần NERDTree)
+" 2. DUYỆT FILE BẰNG NETRW VÀ CHUYỂN ĐỔI CỬA SỔ
 " ==============================================================================
-" Cấu hình Netrw để hiển thị dạng cây (Tree) giống hệt NERDTree
-let g:netrw_banner = 0         " Ẩn các dòng text hướng dẫn dư thừa ở trên cùng
-let g:netrw_liststyle = 3      " Hiển thị thư mục theo dạng cây có thể đóng/mở
-let g:netrw_browse_split = 4   " Mở file ở cửa sổ kế bên (không đè lên cây thư mục)
-let g:netrw_altv = 1           " Quy định hướng chia cửa sổ
-let g:netrw_winsize = 20       " Chiều rộng thanh thư mục chiếm 20% màn hình
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 20
 
-" Bấm Ctrl + n để bật/tắt cây thư mục bên trái (Lexplore: Left Explore)
+" Phím tắt bật/tắt cây thư mục
 nnoremap <C-n> :Lexplore<CR>
 
-" ==============================================================================
-" 3. TERMINAL TÍCH HỢP (Không cần Floaterm)
-" ==============================================================================
-" Bấm F12 để mở Terminal ở cạnh dưới màn hình (cao 12 dòng) và tự động sẵn sàng gõ lệnh
-nnoremap <F12> :botright split <Bar> resize 12 <Bar> terminal<CR>i
+" --- PHÍM TẮT CHUYỂN ĐỔI GIỮA CÂY THƯ MỤC VÀ FILE ---
+" Sử dụng tổ hợp Ctrl + các phím điều hướng H, J, K, L của Vim
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 
-" Bấm F12 trong chế độ Terminal để đóng nó đi nhanh chóng
-tnoremap <F12> <C-\><C-n>:q!<CR>
+" ==============================================================================
+" 3. TERMINAL NỔI (NATIVE FLOATING TERMINAL - KHÔNG CẦN PLUGIN)
+" ==============================================================================
+let s:float_term_win = 0
+let s:float_term_buf = 0
 
-" Bấm Esc 2 lần để thoát chế độ nhập lệnh của Terminal (về Normal mode) để copy/paste
+function! ToggleFloatTerm()
+  " --- BẠN CÓ THỂ TÙY CHỈNH KÍCH THƯỚC VÀ VỊ TRÍ Ở ĐÂY ---
+  " Đang thiết lập là 80% chiều rộng và chiều cao của màn hình
+  let height = float2nr(&lines * 0.8)
+  let width = float2nr(&columns * 0.8)
+  
+  " Công thức này căn giữa màn hình. Nếu muốn chỉnh vị trí khác, thay đổi row và col
+  let row = float2nr((&lines - height) / 2)
+  let col = float2nr((&columns - width) / 2)
+
+  let opts = {
+    \ 'relative': 'editor',
+    \ 'row': row,
+    \ 'col': col,
+    \ 'width': width,
+    \ 'height': height,
+    \ 'style': 'minimal',
+    \ 'border': 'single'
+    \ }
+
+  if win_gotoid(s:float_term_win)
+    hide
+  else
+    if bufexists(s:float_term_buf)
+      let s:float_term_win = nvim_open_win(s:float_term_buf, v:true, opts)
+      startinsert
+    else
+      let s:float_term_buf = nvim_create_buf(v:false, v:true)
+      let s:float_term_win = nvim_open_win(s:float_term_buf, v:true, opts)
+      terminal
+      startinsert
+    endif
+  endif
+endfunction
+
+" Phím F12 để bật/tắt Terminal nổi ở chế độ Normal
+nnoremap <F12> :call ToggleFloatTerm()<CR>
+" Phím F12 để bật/tắt Terminal nổi ngay cả khi đang gõ lệnh bên trong Terminal
+tnoremap <F12> <C-\><C-n>:call ToggleFloatTerm()<CR>
+
+" Bấm Esc 2 lần để thoát chế độ gõ lệnh của Terminal (chuyển về Normal Mode)
 tnoremap <Esc><Esc> <C-\><C-n>
